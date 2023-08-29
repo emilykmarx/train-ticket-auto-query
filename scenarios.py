@@ -68,7 +68,8 @@ def query_and_preserve(q: Query):
     end = ""
     trip_ids = []
 
-    high_speed = random_from_weighted(highspeed_weights)
+    # high_speed = random_from_weighted(highspeed_weights)
+    high_speed = False
     if high_speed:
         start = "Shang Hai"
         end = "Su Zhou"

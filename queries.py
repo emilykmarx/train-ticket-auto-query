@@ -2,12 +2,14 @@ from typing import List
 import requests
 import logging
 import time
+import datetime
 import random
 from utils import *
 
 logger = logging.getLogger("auto-queries")
-datestr = time.strftime("%Y-%m-%d", time.localtime())
-
+# today doesn't seem to have a train
+tom=datetime.date.today() + datetime.timedelta(days=1)
+datestr = tom.strftime("%Y-%m-%d")
 
 class Query:
     """
@@ -86,7 +88,7 @@ class Query:
 
         payload = {
             "departureTime": time,
-            "startingPlace": place_pair[0],
+            "startPlace": place_pair[0],
             "endPlace": place_pair[1],
         }
 
@@ -119,7 +121,7 @@ class Query:
 
         payload = {
             "departureTime": time,
-            "startingPlace": place_pair[0],
+            "startPlace": place_pair[0],
             "endPlace": place_pair[1],
         }
 
@@ -160,7 +162,7 @@ class Query:
 
         payload = {
             "departureTime": time,
-            "startingPlace": place_pair[0],
+            "startPlace": place_pair[0],
             "endPlace": place_pair[1],
         }
 
@@ -199,7 +201,7 @@ class Query:
 
         payload = {
             "departureTime": date,
-            "startingPlace": place_pair[0],
+            "startPlace": place_pair[0],
             "endPlace": place_pair[1],
         }
 
@@ -516,7 +518,8 @@ class Query:
                 f"faild to query admin travel with status_code: {r.status_code}")
         return
 
-    def preserve(self, start: str, end: str, trip_ids: List = [], is_high_speed: bool = True, date: str = "", headers: dict = {}):
+    def preserve(self, start: str, end: str, trip_ids: List = [], is_high_speed: bool = True,
+                 date: str = "", headers: dict = {}, need_food = True):
         if date == "":
             date = datestr
 
@@ -538,7 +541,6 @@ class Query:
         trip_id = random_from_list(trip_ids)
         base_preserve_payload["tripId"] = trip_id
 
-        need_food = random_boolean()
         if need_food:
             logger.info("need food")
             food_result = self.query_food()
