@@ -267,10 +267,11 @@ class Query:
             return None
 
         data = response.json().get("data")
-        # print("contacts")
-        # pprint(data)
 
         ids = [d.get("id") for d in data if d.get("id") != None]
+        # Only default user has contacts - use theirs if this user doesn't have any
+        if len(ids) == 0:
+            return ["005f1a33-ada1-45e5-9922-b7b0ade246a8", "ccf440d1-40f6-4830-b5fa-4712581aac81"]
         # pprint(ids)
         return ids
 
@@ -480,6 +481,28 @@ class Query:
         else:
             logger.warning(f"config failed")
             return None
+
+    '''
+    If user already exists, gives normal status code with "Add user error" in response.
+    Non-admin endpoint doesn't seem to fully create user (e.g. add to user table, allow preserve)
+    '''
+    def query_create_user(self, username, password, as_admin=True, headers: dict = {}):
+        if as_admin:
+            url = f"{self.address}/api/v1/adminuserservice/users"
+        else:
+            url = f"{self.address}/api/v1/auth"
+        payload = {
+            "userName": username,
+            "password": password,
+        }
+
+        r = self.session.post(url=url, json=payload, headers=headers)
+        expected_code = 200 if as_admin else 201
+        if r.status_code == expected_code:
+            logger.info(r.text)
+        else:
+            logger.warning(
+                f"Request Failed: status code: {r.status_code}, {r.text}")
 
     def rebook_ticket(self, old_order_id, old_trip_id, new_trip_id, new_date="", new_seat_type="", headers: dict = {}):
         url = f"{self.address}/api/v1/rebookservice/rebook"
